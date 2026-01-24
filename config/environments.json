@@ -1,0 +1,22 @@
+{
+  "dev": {
+    "name": "Dev",
+    "url": "https://routing-dev.transact.com",
+    "branch": "ops/development"
+  },
+  "qa": {
+    "name": "QA",
+    "url": "https://routing-qa.transact.com",
+    "branch": "ops/qa"
+  },
+  "uat": {
+    "name": "UAT",
+    "url": "https://routing-uat.transact.com/admin",
+    "branch": "ops/uat"
+  },
+  "prod": {
+    "name": "Prod",
+    "url": "https://www.ezrouting.com",
+    "branch": "ops/production"
+  }
+}

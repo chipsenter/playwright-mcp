@@ -1,0 +1,23 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "headless": false
+    }
+  },
+  "outputMode": "stdout",
+  "testIdAttribute": "data-testid",
+  "timeouts": {
+    "action": 5000,
+    "navigation": 60000
+  },
+  "network": {
+    "allowedOrigins": [
+      "https://routing-dev.transact.com",
+      "https://routing-qa.transact.com",
+      "https://routing-uat.transact.com",
+      "https://www.ezrouting.com",
+      "https://info.ezrouting.com"
+    ]
+  }
+}
