@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { DashboardPage } from '../pages/DashboardPage';
+import { LoginPage } from '../pages/LoginPage.js';
+import { DashboardPage } from '../pages/DashboardPage.js';
 
 test.describe('Workspace Creation', () => {
   test('should create a new workspace with unique name', async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Workspace Creation', () => {
     // Login
     const loginPage = new LoginPage(page);
     await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
-    await loginPage.login(email!, password!);
+    await loginPage.login(email, password);
     await page.waitForTimeout(2000);
 
     const dashboard = new DashboardPage(page);

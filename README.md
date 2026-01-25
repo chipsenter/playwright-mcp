@@ -4,12 +4,14 @@ Comprehensive Playwright test automation suite for EZRouting UAT testing with Pa
 
 ## Features
 
+- **Pure JavaScript** - All tests and page objects written in modern JavaScript (no TypeScript)
 - **Comprehensive Smoke Test Suite** - Combined test scenarios for login, student count, workspace creation, navigation, and search
 - **Page Object Model** - Reusable page objects for maintainable test code
 - **Allure Reporting** - Rich test reports with screenshots and traces
 - **Environment-based Configuration** - Secure credential management via .env
 - **Multiple Test Scenarios** - Individual test scripts and combined smoke tests
 - **Automatic Browser Management** - Handles browser installation and cleanup
+- **Auto-generated Locators** - Extract page locators automatically with `extract-students-locators.js`
 
 ## Prerequisites
 
@@ -58,10 +60,10 @@ npm run test:headed
 npm run test:allure
 
 # Run specific test suite
-npx playwright test tests/student-count.spec.ts
-npx playwright test tests/workspace-creation.spec.ts
-npx playwright test tests/navigation.spec.ts
-npx playwright test tests/student-search.spec.ts
+npx playwright test tests/student-count.spec.js
+npx playwright test tests/workspace-creation.spec.js
+npx playwright test tests/navigation.spec.js
+npx playwright test tests/student-search.spec.js
 
 # Run tests matching a pattern
 npx playwright test --grep "Student"
@@ -74,11 +76,11 @@ npx playwright test --ui
 ```
 
 **Available test suites:**
-- `login-uat-admin.spec.ts` - Admin login and district selection
-- `student-count.spec.ts` - Student count validation (410 / 410)
-- `workspace-creation.spec.ts` - Workspace creation with unique naming
-- `navigation.spec.ts` - Navigation through all main tabs (8 tests)
-- `student-search.spec.ts` - Student search functionality (3 tests)
+- `login-uat-admin.spec.js` - Admin login and district selection
+- `student-count.spec.js` - Student count validation (410 / 410)
+- `workspace-creation.spec.js` - Workspace creation with unique naming
+- `navigation.spec.js` - Navigation through all main tabs (8 tests)
+- `student-search.spec.js` - Student search functionality (3 tests)
 
 ### Legacy Smoke Test Script
 
@@ -120,18 +122,25 @@ Allure reports include:
 
 ```
 mcp-playwright/
-├── pages/                      # Page Object Model
-│   ├── LoginPage.ts           # Login page locators and actions
-│   ├── DashboardPage.ts       # Dashboard and workspace locators
-│   └── StudentsPage.ts        # Students page locators
-├── tests/                     # Playwright test specs (14 tests)
-│   ├── login-uat-admin.spec.ts      # Admin login test
-│   ├── student-count.spec.ts        # Student count validation
-│   ├── workspace-creation.spec.ts   # Workspace creation
-│   ├── navigation.spec.ts           # Navigation tests (8 tests)
-│   └── student-search.spec.ts       # Search tests (3 tests)
+├── pages/                      # Page Object Model (JavaScript)
+│   ├── locators/              # Auto-generated locators
+│   │   ├── students-locators.js   # Students page locators (2328 locators)
+│   │   └── students-locators.json # Students locators metadata
+│   ├── LoginPage.js           # Login page locators and actions
+│   ├── DashboardPage.js       # Dashboard and workspace locators
+│   └── StudentsPage.js        # Students page locators
+├── tests/                     # Playwright test specs (14 tests, JavaScript)
+│   ├── login-uat-admin.spec.js      # Admin login test
+│   ├── student-count.spec.js        # Student count validation
+│   ├── workspace-creation.spec.js   # Workspace creation
+│   ├── navigation.spec.js           # Navigation tests (8 tests)
+│   └── student-search.spec.js       # Search tests (3 tests)
 ├── scripts/                   # Utility scripts
 │   ├── smoke-ezrouting.js     # Legacy smoke test script
+│   ├── extract-students-locators.js # Auto-extract page locators
+│   ├── page-inspector.js      # Page element inspector for debugging
+│   ├── slack-notifier.js      # Slack notification sender
+│   ├── notify-test-results.js # Auto-notify Slack with test results
 │   └── loadEnv.js            # Environment loader
 ├── documentation/             # Project documentation
 │   └── playwright-commands.md # Command reference guide
@@ -179,7 +188,34 @@ npx playwright show-trace
 
 # Generate test code (Codegen)
 npx playwright codegen https://routing-uat.transact.com/testqa
+
+# Inspect page elements for finding selectors
+node scripts/page-inspector.js students
+node scripts/page-inspector.js routes
+node scripts/page-inspector.js routes --click 'a:has-text("Show Students")'
 ```
+
+### Page Inspector
+
+Use the page inspector to discover selectors and elements on any page:
+
+```bash
+# Inspect a specific page
+node scripts/page-inspector.js <page-name>
+
+# Inspect after clicking an element
+node scripts/page-inspector.js <page-name> --click '<selector>'
+
+# Available pages: dashboard, students, schools, vehicles, staff, stops, fieldtrips, routes
+```
+
+The inspector displays:
+- All visible buttons with testIds
+- All links with testIds
+- All elements with data-testid attributes
+- All input fields and forms
+- All modals/panels/dialogs
+- Screenshot saved to artifacts/
 
 ## Documentation
 
@@ -213,10 +249,19 @@ cat .env
 
 When adding new tests:
 
-1. Use Page Object Model pattern (add locators to `pages/`)
-2. Follow existing naming conventions
-3. Update documentation as needed
-4. Ensure tests clean up after themselves (e.g., unique workspace names)
+1. Use Page Object Model pattern (add locators to `pages/` as JavaScript classes)
+2. Follow existing naming conventions (`.spec.js` for tests, `.js` for page objects)
+3. Use ES6 module syntax (`import/export`) for consistency
+4. Update documentation as needed
+5. Ensure tests clean up after themselves (e.g., unique workspace names)
+
+## Technology Stack
+
+- **Playwright 1.59.0-alpha**: Browser automation framework
+- **JavaScript (ES6+)**: All tests and page objects (no TypeScript)
+- **Node.js**: Runtime environment
+- **Allure**: Test reporting framework
+- **@playwright/mcp**: AI-assisted browser automation
 
 ## Notes
 
@@ -233,9 +278,87 @@ When adding new tests:
 
 | Test Suite | Tests | Description |
 |------------|-------|-------------|
-| login-uat-admin.spec.ts | 1 | Admin login and district selection |
-| student-count.spec.ts | 1 | Validates student count displays "410 / 410" |
-| workspace-creation.spec.ts | 1 | Creates workspace with unique name |
-| navigation.spec.ts | 8 | Tests all main navigation tabs |
-| student-search.spec.ts | 3 | Tests search functionality |
+| login-uat-admin.spec.js | 1 | Admin login and district selection |
+| student-count.spec.js | 1 | Validates student count displays "410 / 410" |
+| workspace-creation.spec.js | 1 | Creates workspace with unique name |
+| navigation.spec.js | 8 | Tests all main navigation tabs |
+| student-search.spec.js | 3 | Tests search functionality |
 | **Total** | **14** | Comprehensive UAT validation |
+
+## Slack Notifications
+
+Post test execution updates to Slack automatically.
+
+### Setup
+
+Add your Slack webhook URL to `.env`:
+
+```bash
+SLACK_WEBHOOK_DEBUG_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+
+### Usage
+
+```bash
+# Manual notifications
+npm run notify:started      # Notify test execution started
+npm run notify:completed    # Notify test execution completed
+npm run notify:failed       # Notify test execution failed
+
+# Run tests with automatic Slack notifications
+npm run test:notify
+
+# Custom notifications
+node scripts/slack-notifier.js --status started --env uat --client testqa
+node scripts/slack-notifier.js --status completed --passed 14 --failed 0 --env uat
+node scripts/slack-notifier.js --status failed --passed 10 --failed 4 --env uat
+```
+
+### Message Format
+
+Slack messages include:
+- 🚀 Test execution status (started/completed/failed)
+- Environment (UAT, QA, Dev, Prod)
+- Client/district name
+- Browser type
+- Git branch and commit
+- Triggered by (git author)
+- Test results (passed/failed/total)
+- Pass rate percentage
+
+### CI/CD Integration
+
+Use in your CI/CD pipeline:
+
+```yaml
+# Example GitHub Actions
+- name: Notify Slack - Started
+  run: npm run notify:started
+
+- name: Run Tests
+  run: npm test
+
+- name: Notify Slack - Results
+  if: always()
+  run: |
+    if [ $? -eq 0 ]; then
+      npm run notify:completed
+    else
+      npm run notify:failed
+    fi
+```
+
+## Auto-generated Locators
+
+Extract all data-testid locators from any page automatically:
+
+```bash
+# Extract Students page locators
+node scripts/extract-students-locators.js
+```
+
+This generates:
+- `pages/locators/students-locators.json` - Complete locator data with metadata
+- `pages/locators/students-locators.js` - JavaScript constants for use in tests
+
+Currently includes 2328 unique locators from the Students page.

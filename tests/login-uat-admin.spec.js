@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { DashboardPage } from '../pages/DashboardPage';
+import { LoginPage } from '../pages/LoginPage.js';
+import { DashboardPage } from '../pages/DashboardPage.js';
 
 test('uat admin login (smoke)', async ({ page }) => {
   const email = process.env.AUTOMATION_SUPER_USER;
@@ -10,7 +10,7 @@ test('uat admin login (smoke)', async ({ page }) => {
 
   const loginPage = new LoginPage(page);
   await loginPage.goto();
-  await loginPage.login(email!, password!);
+  await loginPage.login(email, password);
 
   const dashboard = new DashboardPage(page);
 
@@ -22,4 +22,3 @@ test('uat admin login (smoke)', async ({ page }) => {
 
   await expect(page1).toHaveURL(/routing-uat\.transact\.com/);
 });
-

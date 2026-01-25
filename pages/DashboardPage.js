@@ -1,102 +1,102 @@
-import type { Page, Locator } from '@playwright/test';
-
 export class DashboardPage {
-  constructor(private readonly page: Page) {}
+  constructor(page) {
+    this.page = page;
+  }
 
   // Locators (based on codegen recording)
-  get menuButton(): Locator {
+  get menuButton() {
     return this.page.locator('.col.m2').first();
   }
 
-  get districtSearchBox(): Locator {
+  get districtSearchBox() {
     return this.page.getByRole('searchbox', { name: 'search...' });
   }
 
-  get openRoutingLink(): Locator {
+  get openRoutingLink() {
     // Codegen produced a truncated accessible name; keep it tolerant.
     return this.page.getByRole('link', { name: /routing-uat\.transact\./i });
   }
 
   // Routing app nav (data-testid)
-  get navDashboardLink(): Locator {
+  get navDashboardLink() {
     return this.page.getByTestId('nav-dashboard-link');
   }
 
-  get navStudentsLink(): Locator {
+  get navStudentsLink() {
     return this.page.getByTestId('nav-students-link');
   }
 
-  get navSchoolsLink(): Locator {
+  get navSchoolsLink() {
     return this.page.getByTestId('nav-schools-link');
   }
 
-  get navVehiclesLink(): Locator {
+  get navVehiclesLink() {
     return this.page.getByTestId('nav-vehicles-link');
   }
 
-  get navRoutesLink(): Locator {
+  get navRoutesLink() {
     return this.page.getByTestId('nav-routes-link');
   }
 
   // Workspace (data-testid)
-  get workspaceTitle(): Locator {
+  get workspaceTitle() {
     return this.page.getByTestId('workspace-title');
   }
 
-  get workspaceAddButton(): Locator {
+  get workspaceAddButton() {
     return this.page.getByTestId('workspace-add-btn');
   }
 
-  get workspaceSaveButton(): Locator {
+  get workspaceSaveButton() {
     return this.page.getByTestId('workspace-save-btn');
   }
 
-  get workspaceActivateButton(): Locator {
+  get workspaceActivateButton() {
     return this.page.getByTestId('workspace-activate-btn');
   }
 
-  get workspaceEditor(): Locator {
+  get workspaceEditor() {
     return this.page.getByTestId('workspace-editor');
   }
 
   // Dialog/buttons (as recorded by codegen)
-  get okButton(): Locator {
+  get okButton() {
     return this.page.getByRole('button', { name: /^(Ok|OK)$/ });
   }
 
-  get yesButton(): Locator {
+  get yesButton() {
     return this.page.getByRole('button', { name: 'Yes' });
   }
 
   // Workspace name input (codegen used the 2nd textbox on the dialog)
-  get workspaceNameInput(): Locator {
+  get workspaceNameInput() {
     return this.page.getByRole('textbox').nth(1);
   }
 
   // Depots dropdown + menu item
-  get depotsDropdown(): Locator {
+  get depotsDropdown() {
     // Matches the editor dropdown text used by codegen: "Depots arrow_drop_down"
     return this.workspaceEditor.getByText(/Depots/i);
   }
 
-  depotMenuItemAction(indexZeroBased: number): Locator {
+  depotMenuItemAction(indexZeroBased) {
     // Codegen had an id like `#depots-mm28ti`; use a safer "id starts with depots-" selector.
     return this.page.locator('[id^="depots-"]:visible .menu-item-action').nth(indexZeroBased);
   }
 
-  workspaceChipByName(name: string): Locator {
+  workspaceChipByName(name) {
     return this.page.getByTitle(`Workspace: ${name}`);
   }
 
-  get deactivateButton(): Locator {
+  get deactivateButton() {
     return this.page.getByRole('button', { name: 'Deactivate' });
   }
 
-  async openMenu(): Promise<void> {
+  async openMenu() {
     await this.menuButton.click();
   }
 
-  async searchAndSelectDistrict(searchTerm: string, districtRowText: string): Promise<void> {
+  async searchAndSelectDistrict(searchTerm, districtRowText) {
     await this.openMenu();
 
     await this.districtSearchBox.waitFor({ state: 'visible' });
@@ -106,7 +106,7 @@ export class DashboardPage {
     await this.page.getByText(districtRowText).click();
   }
 
-  async openRoutingInPopup(): Promise<Page> {
+  async openRoutingInPopup() {
     const popupPromise = this.page.waitForEvent('popup');
     await this.openRoutingLink.click();
     return await popupPromise;
@@ -116,7 +116,7 @@ export class DashboardPage {
    * Simple smoke navigation through main sections.
    * Intended to be used on the routing "popup" page after district selection.
    */
-  async clickThroughMainNav(): Promise<void> {
+  async clickThroughMainNav() {
     await this.navDashboardLink.click();
     await this.navStudentsLink.click();
     await this.navSchoolsLink.click();
@@ -127,7 +127,7 @@ export class DashboardPage {
   }
 
   // Optional helper that mirrors your recorded workspace flow.
-  async createActivateThenDeactivateWorkspace(workspaceName: string, depotOptionIndexZeroBased = 2): Promise<void> {
+  async createActivateThenDeactivateWorkspace(workspaceName, depotOptionIndexZeroBased = 2) {
     await this.workspaceTitle.click();
     await this.workspaceAddButton.click();
     await this.workspaceSaveButton.click();
@@ -150,4 +150,3 @@ export class DashboardPage {
     await this.yesButton.click();
   }
 }
-

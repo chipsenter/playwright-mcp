@@ -1,26 +1,26 @@
-import type { Page, Locator } from '@playwright/test';
-
 export class LoginPage {
-  constructor(private readonly page: Page) {}
+  constructor(page) {
+    this.page = page;
+  }
 
   // Locators
-  get emailOrPhoneInput(): Locator {
+  get emailOrPhoneInput() {
     return this.page.getByRole('textbox', { name: 'Email or Phone' });
   }
 
-  get passwordInput(): Locator {
+  get passwordInput() {
     return this.page.getByRole('textbox', { name: 'Password' });
   }
 
-  get loginButton(): Locator {
+  get loginButton() {
     return this.page.getByRole('button', { name: 'Login' });
   }
 
-  async goto(): Promise<void> {
+  async goto() {
     await this.page.goto('https://routing-uat.transact.com/admin');
   }
 
-  async login(email: string, password: string): Promise<void> {
+  async login(email, password) {
     await this.emailOrPhoneInput.click();
     await this.emailOrPhoneInput.fill(email);
 
@@ -30,4 +30,3 @@ export class LoginPage {
     await this.loginButton.click();
   }
 }
-

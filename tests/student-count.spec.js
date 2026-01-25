@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { StudentsPage } from '../pages/StudentsPage';
+import { LoginPage } from '../pages/LoginPage.js';
+import { StudentsPage } from '../pages/StudentsPage.js';
 
 test.describe('Student Count Validation', () => {
   test('should display correct student count after clearing search', async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('Student Count Validation', () => {
     // Login
     const loginPage = new LoginPage(page);
     await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
-    await loginPage.login(email!, password!);
+    await loginPage.login(email, password);
     await page.waitForTimeout(2000);
 
     // Navigate to Students page

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+import { LoginPage } from '../pages/LoginPage.js';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -15,7 +15,7 @@ test.describe('Navigation Validation', () => {
     // Login before each test
     const loginPage = new LoginPage(page);
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
-    await loginPage.login(email!, password!);
+    await loginPage.login(email, password);
     await page.waitForTimeout(2000);
   });
 
