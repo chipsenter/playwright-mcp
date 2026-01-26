@@ -82,4 +82,60 @@ test.describe('Student Search Validation', () => {
     const count = await studentsPage.getStudentCount();
     expect(count).toContain('410 / 410');
   });
+
+  test('should validate all student filter dropdowns are visible', async ({ page }) => {
+    const studentsPage = new StudentsPage(page);
+
+    console.log('Step 1: Validating student filters dropdown is visible...');
+    await expect(studentsPage.studentFiltersDropdown).toBeVisible();
+
+    console.log('Step 2: Clicking student schools dropdown...');
+    await studentsPage.clickSchoolsDropdown();
+    await page.waitForTimeout(500);
+
+    console.log('Step 3: Validating all dropdown filters are visible...');
+    await expect(studentsPage.studentSchoolsDropdown).toBeVisible();
+    await expect(studentsPage.studentGradesDropdown).toBeVisible();
+    await expect(studentsPage.studentVehiclesDropdown).toBeVisible();
+    await expect(studentsPage.studentOperationsDropdown).toBeVisible();
+    await expect(studentsPage.studentReportsDropdown).toBeVisible();
+
+    console.log('✓ All student filter dropdowns validated successfully');
+  });
+
+  test('should validate students filter dropdown options', async ({ page }) => {
+    const studentsPage = new StudentsPage(page);
+
+    console.log('Step 1: Clicking student filters dropdown once...');
+    await studentsPage.clickFiltersDropdown();
+    await page.waitForTimeout(2000);
+
+    console.log('Step 2: Validating student filters dropdown is visible...');
+    await expect(studentsPage.studentFiltersDropdown).toBeVisible();
+
+    console.log('Step 3: Validating all filter options are visible...');
+    // Wait for the first filter to become visible before checking others
+    await studentsPage.filterAny.waitFor({ state: 'visible', timeout: 10_000 });
+
+    await expect(studentsPage.filterAny).toBeVisible();
+    await expect(studentsPage.filterCustomFilters).toBeVisible();
+    await expect(studentsPage.filterGeneral).toBeVisible();
+    await expect(studentsPage.filterRiders).toBeVisible();
+    await expect(studentsPage.filterTransportPrograms).toBeVisible();
+    await expect(studentsPage.filterTransportPlans).toBeVisible();
+    await expect(studentsPage.filterBusSchedules).toBeVisible();
+    await expect(studentsPage.filterRidership).toBeVisible();
+    await expect(studentsPage.filterFamilyId).toBeVisible();
+    await expect(studentsPage.filterContacts).toBeVisible();
+    await expect(studentsPage.filterParents).toBeVisible();
+    await expect(studentsPage.filterLocation).toBeVisible();
+    await expect(studentsPage.filterBusRegions).toBeVisible();
+    await expect(studentsPage.filterCustomRegions).toBeVisible();
+    await expect(studentsPage.filterStudentInfo).toBeVisible();
+    await expect(studentsPage.filterEthnicities).toBeVisible();
+    await expect(studentsPage.filterTransportCodes).toBeVisible();
+    await expect(studentsPage.filterAdvancedSearch).toBeVisible();
+
+    console.log('✓ All student filter options validated successfully');
+  });
 });
