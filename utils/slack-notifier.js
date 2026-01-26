@@ -175,7 +175,7 @@ async function formatSlackMessage(options, gitInfo) {
     `• *Email Notification:* \`false\`\n` +
     `• *Automation Score:* \`${passRate.toFixed(2)}%\`\n` +
     `• *Allure Report:* ${allureReportLink}\n\n` +
-    statusLine;
+    statusLine + `\n🚀 *Status:* Successfully Sent From Playwright`;
 
   return {
     blocks: [
@@ -210,6 +210,7 @@ async function postToSlack(message) {
 
     if (response.ok) {
       console.log('✅ Message posted to Slack successfully!');
+      console.log('🚀 Status: Successfully Sent From Playwright');
     } else {
       const errorText = await response.text();
       console.error('❌ Failed to post to Slack:', response.status, errorText);

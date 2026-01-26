@@ -139,3 +139,44 @@ test.describe('Student Search Validation', () => {
     console.log('✓ All student filter options validated successfully');
   });
 });
+
+test.describe('Student Riders Validation', () => {
+  test('should filter students by riders only and validate count', async ({ page }) => {
+    const email = process.env.AUTOMATION_SUPER_USER;
+    const password = process.env.AUTOMATION_SUPER_PASSWORD;
+
+    test.skip(!email || !password, 'Missing AUTOMATION_SUPER_USER or AUTOMATION_SUPER_PASSWORD in .env');
+
+    // Navigate and login
+    await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('textbox', { name: 'Email or Phone' }).click();
+    await page.getByRole('textbox', { name: 'Email or Phone' }).fill(email);
+    await page.getByRole('textbox', { name: 'Password' }).click();
+    await page.getByRole('textbox', { name: 'Password' }).fill(password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForTimeout(2000);
+
+    // Navigate to Students
+    await page.getByTestId('nav-students-link').click();
+    await page.waitForTimeout(1000);
+
+    // Open filters dropdown and select Riders Only
+    await page.getByTestId('student-filters-dropdown').click();
+    await page.waitForTimeout(500);
+    await page.getByTestId('filter-riders').hover();
+    await page.getByTestId('filter-riders-only').click();
+    await page.waitForTimeout(1500);
+
+    // Validate riders count
+    await expect(page.locator('router-view')).toContainText('88 / 410');
+
+    // Logout
+    await page.getByTestId('user-menu-trigger-link').click();
+    await page.waitForTimeout(500);
+    await page.getByTestId('user-menu-logout-link').click();
+    await page.waitForTimeout(1000);
+
+    // Verify logged out
+    await expect(page.locator('h4')).toContainText('WELCOME');
+  });
+});
