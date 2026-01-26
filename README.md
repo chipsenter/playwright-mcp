@@ -39,6 +39,9 @@ Create a `.env` file in the project root (use `.env.example` as a template):
 ```bash
 AUTOMATION_SUPER_USER=your-email@example.com
 AUTOMATION_SUPER_PASSWORD=your-password
+
+# Optional: Set default client (defaults to testqa if not specified)
+CLIENT=testqa
 ```
 
 **Important:** Never commit the `.env` file to version control. It's already in `.gitignore`.
@@ -75,12 +78,44 @@ npx playwright test --debug
 npx playwright test --ui
 ```
 
+### Client-Specific Testing
+
+Tests can target different clients/districts using the `CLIENT` environment variable. The framework supports multiple clients with different data sets:
+
+```bash
+# Run tests for clarknv client (ARVILLE DEPOT workspace data)
+CLIENT=clarknv npx playwright test
+
+# Run specific test with client
+CLIENT=clarknv npx playwright test --grep "ARVILLE DEPOT" --headed
+
+# Run tests via npm script with client
+npm run test:headed -- --client=clarknv
+
+# Set default client in .env file
+echo "CLIENT=clarknv" >> .env
+```
+
+**Available clients:**
+- `testqa` - Default test client (410 students)
+- `clarknv` - Clark County NV client (ARVILLE DEPOT with 25,811 students)
+
+The client parameter is read in this order of precedence:
+1. `CLIENT` or `TEST_CLIENT` environment variable
+2. npm config variable (`npm run test -- --client=clarknv`)
+3. Defaults to `testqa`
+
+**Note:** Some tests require specific clients. For example, `workspace-depot-validation.spec.js` requires the `clarknv` client to access ARVILLE DEPOT data.
+
+```
+
 **Available test suites:**
 - `login-uat-admin.spec.js` - Admin login and district selection
 - `student-count.spec.js` - Student count validation (410 / 410)
 - `workspace-creation.spec.js` - Workspace creation with unique naming
+- `workspace-depot-validation.spec.js` - Workspace with ARVILLE DEPOT validation (requires clarknv client)
 - `navigation.spec.js` - Navigation through all main tabs (8 tests)
-- `student-search.spec.js` - Student search functionality (3 tests)
+- `student-search.spec.js` - Student search and filter validation (5 tests)
 
 ### Legacy Smoke Test Script
 
@@ -129,12 +164,13 @@ mcp-playwright/
 │   ├── LoginPage.js           # Login page locators and actions
 │   ├── DashboardPage.js       # Dashboard and workspace locators
 │   └── StudentsPage.js        # Students page locators
-├── tests/                     # Playwright test specs (14 tests, JavaScript)
+├── tests/                     # Playwright test specs (17 tests, JavaScript)
 │   ├── login-uat-admin.spec.js      # Admin login test
 │   ├── student-count.spec.js        # Student count validation
 │   ├── workspace-creation.spec.js   # Workspace creation
+│   ├── workspace-depot-validation.spec.js  # Workspace with ARVILLE DEPOT (clarknv)
 │   ├── navigation.spec.js           # Navigation tests (8 tests)
-│   └── student-search.spec.js       # Search tests (3 tests)
+│   └── student-search.spec.js       # Search and filter tests (5 tests)
 ├── scripts/                   # Utility scripts
 │   ├── smoke-ezrouting.js     # Legacy smoke test script
 │   ├── extract-students-locators.js # Auto-extract page locators
@@ -142,6 +178,7 @@ mcp-playwright/
 │   ├── notify-test-results.js # Auto-notify Slack with test results
 │   └── loadEnv.js            # Environment loader
 ├── utils/                     # Shared utilities
+│   ├── ezrouting-test-config.js  # Client and environment configuration
 │   ├── slack-notifier.js      # Slack notification sender
 │   └── s3-uploader.js         # S3 uploader for Allure reports
 ├── documentation/             # Project documentation
@@ -267,11 +304,12 @@ When adding new tests:
 
 ## Notes
 
-- **14 total tests** across 5 test suites
+- **17 total tests** across 6 test suites
 - Tests run in parallel by default for faster execution
 - All tests use headless mode by default for CI/CD compatibility
 - Workspace creation uses random numbers (1-50) for unique naming
 - Student count validation expects "410 / 410" in UAT testqa environment
+- Some tests require specific clients (e.g., workspace-depot-validation requires clarknv)
 - Browser automatically closes after test completion
 - Automatic screenshots on failure, traces on retry
 - Sensitive data (screenshots, reports, .env) excluded via `.gitignore`
@@ -283,9 +321,10 @@ When adding new tests:
 | login-uat-admin.spec.js | 1 | Admin login and district selection |
 | student-count.spec.js | 1 | Validates student count displays "410 / 410" |
 | workspace-creation.spec.js | 1 | Creates workspace with unique name |
+| workspace-depot-validation.spec.js | 1 | Creates and activates workspace with ARVILLE DEPOT (clarknv) |
 | navigation.spec.js | 8 | Tests all main navigation tabs |
-| student-search.spec.js | 3 | Tests search functionality |
-| **Total** | **14** | Comprehensive UAT validation |
+| student-search.spec.js | 5 | Search, filter dropdowns, and filter options validation |
+| **Total** | **17** | Comprehensive UAT validation |
 
 ## Slack Notifications
 

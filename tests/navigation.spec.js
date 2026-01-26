@@ -26,7 +26,7 @@ test.describe('Navigation Validation', () => {
     }, `${baseUrl}#/`);
 
     // Wait for URL to change and title to update
-    await page.waitForFunction(() => window.location.hash === '#/', { timeout: 5000 });
+    await page.waitForFunction(() => window.location.hash === '#/' || window.location.hash.startsWith('#/?'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Dashboard'), { timeout: 10000 });
 
     const title = await page.title();
@@ -39,7 +39,7 @@ test.describe('Navigation Validation', () => {
     }, `${baseUrl}#/students`);
 
     // Wait for URL to change and title to update
-    await page.waitForFunction(() => window.location.hash === '#/students', { timeout: 5000 });
+    await page.waitForFunction(() => window.location.hash.startsWith('#/students'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Students'), { timeout: 10000 });
 
     const title = await page.title();
@@ -51,7 +51,7 @@ test.describe('Navigation Validation', () => {
       window.location.href = url;
     }, `${baseUrl}#/schools`);
 
-    await page.waitForFunction(() => window.location.hash === '#/schools', { timeout: 5000 });
+    await page.waitForFunction(() => window.location.hash.startsWith('#/schools'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Schools'), { timeout: 10_000 });
 
     const title = await page.title();
@@ -72,8 +72,8 @@ test.describe('Navigation Validation', () => {
     await page.evaluate((url) => {
       window.location.href = url;
     }, `${baseUrl}#/staffs`);
-    
-    await page.waitForFunction(() => window.location.hash === '#/staffs', { timeout: 5000 });
+
+    await page.waitForFunction(() => window.location.hash.startsWith('#/staffs'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Staffs'), { timeout: 10_000 });
   });
 
@@ -82,7 +82,7 @@ test.describe('Navigation Validation', () => {
       window.location.href = url;
     }, `${baseUrl}#/stops`);
 
-    await page.waitForFunction(() => window.location.hash === '#/stops', { timeout: 5000 });
+    await page.waitForFunction(() => window.location.hash.startsWith('#/stops'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Stops'), { timeout: 10_000 });
   });
 
@@ -101,7 +101,7 @@ test.describe('Navigation Validation', () => {
       window.location.href = url;
     }, `${baseUrl}#/routes`);
 
-    await page.waitForFunction(() => window.location.hash === '#/routes', { timeout: 5000 });
+    await page.waitForFunction(() => window.location.hash.startsWith('#/routes'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Routes'), { timeout: 10_000 });
   });
 });
