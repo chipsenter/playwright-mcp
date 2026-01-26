@@ -139,9 +139,11 @@ mcp-playwright/
 │   ├── smoke-ezrouting.js     # Legacy smoke test script
 │   ├── extract-students-locators.js # Auto-extract page locators
 │   ├── page-inspector.js      # Page element inspector for debugging
-│   ├── slack-notifier.js      # Slack notification sender
 │   ├── notify-test-results.js # Auto-notify Slack with test results
 │   └── loadEnv.js            # Environment loader
+├── utils/                     # Shared utilities
+│   ├── slack-notifier.js      # Slack notification sender
+│   └── s3-uploader.js         # S3 uploader for Allure reports
 ├── documentation/             # Project documentation
 │   └── playwright-commands.md # Command reference guide
 ├── manual-test-cases/         # Generated test reports (markdown)
@@ -309,9 +311,9 @@ npm run notify:failed       # Notify test execution failed
 npm run test:notify
 
 # Custom notifications
-node scripts/slack-notifier.js --status started --env uat --client testqa
-node scripts/slack-notifier.js --status completed --passed 14 --failed 0 --env uat
-node scripts/slack-notifier.js --status failed --passed 10 --failed 4 --env uat
+node utils/slack-notifier.js --status started --env uat --client testqa
+node utils/slack-notifier.js --status completed --passed 14 --failed 0 --env uat
+node utils/slack-notifier.js --status failed --passed 10 --failed 4 --env uat
 ```
 
 ### Message Format

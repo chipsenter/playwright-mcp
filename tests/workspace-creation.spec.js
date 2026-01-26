@@ -1,9 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
 import { LoginPage } from '../pages/LoginPage.js';
 import { DashboardPage } from '../pages/DashboardPage.js';
+import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
 
 test.describe('Workspace Creation', () => {
   test('should create a new workspace with unique name', async ({ page }) => {
+    const baseUrl = getEzRoutingBaseUrl();
     const email = process.env.AUTOMATION_SUPER_USER;
     const password = process.env.AUTOMATION_SUPER_PASSWORD;
 
@@ -11,7 +13,7 @@ test.describe('Workspace Creation', () => {
 
     // Login
     const loginPage = new LoginPage(page);
-    await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await loginPage.login(email, password);
     await page.waitForTimeout(2000);
 

@@ -1,9 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
 import { LoginPage } from '../pages/LoginPage.js';
 import { RoutesPage } from '../pages/RoutesPage.js';
+import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
 
 test.describe('Show Students on Routes Page', () => {
   test('should display routed students count in modal', async ({ page }) => {
+    const baseUrl = getEzRoutingBaseUrl();
     const email = process.env.AUTOMATION_SUPER_USER;
     const password = process.env.AUTOMATION_SUPER_PASSWORD;
 
@@ -11,7 +13,7 @@ test.describe('Show Students on Routes Page', () => {
 
     // Step 1: Open Chrome and navigate to UAT
     console.log('Step 1: Navigating to UAT...');
-    await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
 
     // Step 2: Login
     console.log('Step 2: Logging in...');
@@ -28,7 +30,7 @@ test.describe('Show Students on Routes Page', () => {
     console.log('Step 4: Validating Routes URL...');
     const currentUrl = page.url();
     expect(currentUrl).toContain('#/routes');
-    expect(currentUrl).toContain('routing-uat.transact.com/testqa');
+    expect(currentUrl).toContain(baseUrl);
     console.log(`✓ Successfully navigated to Routes: ${currentUrl}`);
 
     // Wait for page to fully load

@@ -4,8 +4,8 @@
  * Posts test execution updates to Slack channel (matches Java framework format)
  *
  * Usage:
- *   node scripts/slack-notifier.js --status started --env uat --client testqa
- *   node scripts/slack-notifier.js --status completed --passed 14 --failed 0 --env uat --duration "2m 15s"
+ *   node utils/slack-notifier.js --status started --env uat --client testqa
+ *   node utils/slack-notifier.js --status completed --passed 14 --failed 0 --env uat --duration "2m 15s"
  *
  * Options:
  *   --status <started|completed|failed>  Test run status

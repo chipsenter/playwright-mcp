@@ -4,7 +4,7 @@
  * Uploads Allure HTML reports to S3 bucket
  *
  * Usage:
- *   node scripts/s3-uploader.js
+ *   node utils/s3-uploader.js
  */
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';

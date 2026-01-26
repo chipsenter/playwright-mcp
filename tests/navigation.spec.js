@@ -1,10 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
 import { LoginPage } from '../pages/LoginPage.js';
+import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
 
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Navigation Validation', () => {
-  const baseUrl = 'https://routing-uat.transact.com/testqa';
+  const baseUrl = getEzRoutingBaseUrl();
 
   test.beforeEach(async ({ page }) => {
     const email = process.env.AUTOMATION_SUPER_USER;
@@ -16,7 +17,7 @@ test.describe('Navigation Validation', () => {
     const loginPage = new LoginPage(page);
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await loginPage.login(email, password);
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
   });
 
   test('should navigate to Dashboard', async ({ page }) => {
@@ -49,7 +50,9 @@ test.describe('Navigation Validation', () => {
     await page.evaluate((url) => {
       window.location.href = url;
     }, `${baseUrl}#/schools`);
-    await page.waitForTimeout(1500);
+
+    await page.waitForFunction(() => window.location.hash === '#/schools', { timeout: 5000 });
+    await page.waitForFunction(() => document.title.includes('Schools'), { timeout: 10_000 });
 
     const title = await page.title();
     expect(title).toContain('Schools');
@@ -69,20 +72,18 @@ test.describe('Navigation Validation', () => {
     await page.evaluate((url) => {
       window.location.href = url;
     }, `${baseUrl}#/staffs`);
-    await page.waitForTimeout(1500);
-
-    const title = await page.title();
-    expect(title).toContain('Staffs');
+    
+    await page.waitForFunction(() => window.location.hash === '#/staffs', { timeout: 5000 });
+    await page.waitForFunction(() => document.title.includes('Staffs'), { timeout: 10_000 });
   });
 
   test('should navigate to Stops', async ({ page }) => {
     await page.evaluate((url) => {
       window.location.href = url;
     }, `${baseUrl}#/stops`);
-    await page.waitForTimeout(1500);
 
-    const title = await page.title();
-    expect(title).toContain('Stops');
+    await page.waitForFunction(() => window.location.hash === '#/stops', { timeout: 5000 });
+    await page.waitForFunction(() => document.title.includes('Stops'), { timeout: 10_000 });
   });
 
   test('should navigate to Field Trips', async ({ page }) => {
@@ -99,9 +100,8 @@ test.describe('Navigation Validation', () => {
     await page.evaluate((url) => {
       window.location.href = url;
     }, `${baseUrl}#/routes`);
-    await page.waitForTimeout(1500);
 
-    const title = await page.title();
-    expect(title).toContain('Routes');
+    await page.waitForFunction(() => window.location.hash === '#/routes', { timeout: 5000 });
+    await page.waitForFunction(() => document.title.includes('Routes'), { timeout: 10_000 });
   });
 });

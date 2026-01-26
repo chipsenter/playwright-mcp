@@ -1,9 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
 import { LoginPage } from '../pages/LoginPage.js';
 import { StudentsPage } from '../pages/StudentsPage.js';
+import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
 
 test.describe('Student Count Validation', () => {
   test('should display correct student count after clearing search', async ({ page }) => {
+    const baseUrl = getEzRoutingBaseUrl();
     const email = process.env.AUTOMATION_SUPER_USER;
     const password = process.env.AUTOMATION_SUPER_PASSWORD;
 
@@ -11,7 +13,7 @@ test.describe('Student Count Validation', () => {
 
     // Login
     const loginPage = new LoginPage(page);
-    await page.goto('https://routing-uat.transact.com/testqa', { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await loginPage.login(email, password);
     await page.waitForTimeout(2000);
 

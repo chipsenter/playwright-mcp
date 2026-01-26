@@ -171,7 +171,7 @@ async function main() {
     ];
 
     // Call the slack-notifier
-    execSync(`node scripts/slack-notifier.js ${slackNotifierArgs.join(' ')}`, {
+    execSync(`node utils/slack-notifier.js ${slackNotifierArgs.join(' ')}`, {
       stdio: 'inherit'
     });
 
@@ -184,7 +184,7 @@ async function main() {
       '--browser', options.browser
     ];
 
-    execSync(`node scripts/slack-notifier.js ${slackNotifierArgs.join(' ')}`, {
+    execSync(`node utils/slack-notifier.js ${slackNotifierArgs.join(' ')}`, {
       stdio: 'inherit'
     });
   }
