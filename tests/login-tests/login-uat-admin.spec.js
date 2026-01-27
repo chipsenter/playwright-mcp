@@ -2,7 +2,9 @@ import { test, expect } from '../../utils/fixtures.js';
 import { LoginPage } from '../../pages/LoginPage.js';
 import { DashboardPage } from '../../pages/DashboardPage.js';
 
-test('uat admin login (smoke)', async ({ page }) => {
+// TestRail is now automatic! Just include C#### in the test title
+// No need for manual updateTestRailResult() calls
+test('C7204 uat admin login (smoke)', async ({ page }) => {
   const email = process.env.AUTOMATION_SUPER_USER;
   const password = process.env.AUTOMATION_SUPER_PASSWORD;
 

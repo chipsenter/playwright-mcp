@@ -1,0 +1,20 @@
+[
+  {
+    "caseId": 123,
+    "status": 1,
+    "comment": "Test passed successfully",
+    "elapsed": "30s"
+  },
+  {
+    "caseId": 124,
+    "status": 5,
+    "comment": "Test failed: Element not found\n\nError: Timeout waiting for selector",
+    "elapsed": "1m 15s"
+  },
+  {
+    "caseId": 125,
+    "status": 1,
+    "comment": "All validations passed",
+    "elapsed": "45s"
+  }
+]

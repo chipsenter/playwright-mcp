@@ -34,5 +34,9 @@ module.exports = defineConfig({
       suiteTitle: false
     }]
   ]
+  // Note: To enable automatic TestRail updates for all tests:
+  // Uncomment the line below to load global-setup.js
+  // This will auto-update TestRail for ANY test with C#### in the title
+  // globalSetup: require.resolve('./utils/global-setup.js')
 });
 

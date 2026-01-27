@@ -1,5 +1,6 @@
 {
   "name": "mcp-playwright",
+  "type": "module",
   "private": true,
   "scripts": {
     "smoke": "playwright test tests/smoke/comprehensive-smoke.spec.js",
