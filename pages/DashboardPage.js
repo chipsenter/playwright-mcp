@@ -1,6 +1,36 @@
 export class DashboardPage {
   constructor(page) {
     this.page = page;
+
+    // Logo locators
+    this.logo = page.locator("[data-testid='site-logo']");
+    this.newLogo = page.locator("[data-testid='site-logo-image']");
+
+    // Search and navigation
+    this.searchInput = page.locator("#ez-omni-search");
+    this.dashboardNavBtn = page.locator("[data-testid='nav-dashboard-link']");
+    this.studentsNavBtn = page.locator("[data-testid='nav-students-link']");
+    this.schoolsNavBtn = page.locator("[data-testid='nav-schools-link']");
+    this.vehiclesNavBtn = page.locator("[data-testid='nav-vehicles-link']");
+    this.staffNavBtn = page.locator("[data-testid='nav-staff-link']");
+    this.stopsNavBtn = page.locator("[data-testid='nav-stops-link']");
+    this.fieldTripNavBtn = page.locator("[data-testid='nav-fieldtrips-link']");
+    this.routesNavBtn = page.locator("[data-testid='nav-routes-link']");
+
+    // User menu
+    this.userMenuButton = page.locator("#user-dropdown");
+    this.userMenuDropdownList = page.locator("#user-menu");
+    this.guideMeNavBtn = page.getByText("Guide Me");
+    this.userMenuSettingsLink = page.locator("[data-testid='user-menu-settings-link']");
+    this.userMenuUsersLink = page.locator("[data-testid='user-menu-users-link']");
+    this.userMenuRolesLink = page.locator("[data-testid='user-menu-roles-link']");
+    this.userMenuParentsLink = page.locator("[data-testid='user-menu-parents-link']");
+    this.userMenuChangeRequests = page.locator("[data-testid='user-menu-change-requests']");
+    this.logoutButton = page.locator("[data-testid='user-menu-logout-link']");
+
+    // Workspace buttons
+    this.workspaceUpdateBtn = page.locator("[data-testid='workspace-save-btn']");
+    this.workspaceDeleteBtn = page.locator("[data-testid='workspace-delete-btn']");
   }
 
   // Locators (based on codegen recording)

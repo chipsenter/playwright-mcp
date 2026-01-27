@@ -8,7 +8,7 @@ TestRail integration is **now fully automatic**! Simply add a TestRail case ID t
 
 **When does TestRail update?**
 - **Automatically** after EVERY test execution
-- Runs in the `afterEach` hook in [utils/fixtures.js](utils/fixtures.js)
+- Runs in the `afterEach` hook in [utils/fixtures.js](../utils/fixtures.js)
 - Updates happen for **any test** with `C####` format in the title
 
 **What gets updated?**
@@ -147,7 +147,7 @@ TESTRAIL_ENABLED=false
 
 ## Real Example - Your Current Test
 
-[tests/login-tests/login-uat-admin.spec.js](tests/login-tests/login-uat-admin.spec.js)
+[tests/login-tests/login-uat-admin.spec.js](../tests/login-tests/login-uat-admin.spec.js)
 
 ```javascript
 import { test, expect } from '../../utils/fixtures.js';
@@ -334,6 +334,6 @@ npx playwright test
 ```
 
 For more examples, see:
-- [examples/automatic-testrail-suite.spec.js](examples/automatic-testrail-suite.spec.js)
-- [tests/login-tests/login-uat-admin.spec.js](tests/login-tests/login-uat-admin.spec.js)
-- [utils/TESTRAIL-README.md](utils/TESTRAIL-README.md)
+- [examples/automatic-testrail-suite.spec.js](../examples/automatic-testrail-suite.spec.js)
+- [tests/login-tests/login-uat-admin.spec.js](../tests/login-tests/login-uat-admin.spec.js)
+- [utils/TESTRAIL-README.md](../utils/TESTRAIL-README.md)

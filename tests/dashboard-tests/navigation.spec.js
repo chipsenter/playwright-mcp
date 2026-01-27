@@ -1,5 +1,6 @@
 import { test, expect } from '../../utils/fixtures.js';
 import { LoginPage } from '../../pages/LoginPage.js';
+import { DashboardPage } from '../../pages/DashboardPage.js';
 import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe.configure({ mode: 'serial' });
@@ -104,4 +105,23 @@ test.describe('Navigation Validation', () => {
     await page.waitForFunction(() => window.location.hash.startsWith('#/routes'), { timeout: 5000 });
     await page.waitForFunction(() => document.title.includes('Routes'), { timeout: 10_000 });
   });
-});
+
+  test('should navigate to Reports', async ({ page }) => {
+    await page.evaluate((url) => {
+      window.location.href = url;
+    }, `${baseUrl}#/reports`);
+
+    await page.waitForFunction(() => window.location.hash.startsWith('#/reports'), { timeout: 5000 });
+    await page.waitForFunction(() => document.title.includes('Reports'), { timeout: 10_000 });
+
+    const title = await page.title();
+    expect(title).toContain('Reports');
+  });
+
+  test('C4953 should validate new logo', async ({ page }) => {
+    const dashboardPage = new DashboardPage(page);
+    await expect(dashboardPage.logo).toBeVisible();
+    await expect(dashboardPage.newLogo).toBeVisible();
+  });
+
+  });
