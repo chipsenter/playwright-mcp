@@ -126,6 +126,24 @@ export class StudentsPage {
     return this.page.getByTestId(StudentsLocators.filterAdvancedSearch);
   }
 
+  get filterRidersOnly() {
+    return this.page.getByTestId(StudentsLocators.filterRidersOnly);
+  }
+
+  // User menu locators
+  get userMenuTriggerLink() {
+    return this.page.getByTestId(StudentsLocators.userMenuTriggerLink);
+  }
+
+  get userMenuLogoutLink() {
+    return this.page.getByTestId(StudentsLocators.userMenuLogoutLink);
+  }
+
+  // Router view locator (for validation)
+  get routerView() {
+    return this.page.locator('router-view');
+  }
+
   // Workspace locators
   get workspaceAddBtn() {
     return this.page.getByTestId('workspace-add-btn');
@@ -300,5 +318,166 @@ export class StudentsPage {
 
   getWorkspaceItem(itemId) {
     return this.page.getByTestId(`workspace-item-${itemId}`);
+  }
+
+  // Filter methods
+  async selectRidersOnlyFilter() {
+    await this.studentFiltersDropdown.click();
+    await this.page.waitForTimeout(500);
+    await this.filterRiders.hover();
+    await this.filterRidersOnly.click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  // Logout method
+  async logout() {
+    await this.userMenuTriggerLink.click();
+    await this.page.waitForTimeout(500);
+    await this.userMenuLogoutLink.click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  // Student card locators
+  get firstStudentCard() {
+    return this.page.locator('[data-testid^="student-card-"]').first();
+  }
+
+  get studentWheelchairCheckbox() {
+    return this.page.getByTestId('student-wheelchair-checkbox');
+  }
+
+  get spedCheckbox() {
+    return this.page.locator('[data-testid="SPED-checkbox"]');
+  }
+
+  // Student edit methods
+  async openFirstStudentForEdit(baseUrl) {
+    await this.firstStudentCard.waitFor({ state: 'visible', timeout: 60_000 });
+    const testId = await this.firstStudentCard.getAttribute('data-testid');
+    if (!testId) throw new Error('Unable to read first student-card data-testid.');
+
+    const studentId = testId.split('-').pop();
+    if (!studentId) throw new Error(`Unexpected student-card testid: ${testId}`);
+
+    // Navigating by hash route is the most reliable way to open the record in automation.
+    await this.page.goto(`${baseUrl}#/student/${studentId}`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await this.studentWheelchairCheckbox.waitFor({ state: 'attached', timeout: 60_000 });
+
+    return { studentId };
+  }
+
+  async toggleFlag(which) {
+    if (which === 'sped') {
+      const sped = this.spedCheckbox;
+      await sped.waitFor({ state: 'attached', timeout: 30_000 });
+      try {
+        await sped.click();
+      } catch {
+        await sped.click({ force: true });
+      }
+      return { toggled: 'SPED' };
+    }
+
+    // Wheelchair is a wrapper; click the nested input if present.
+    const wrapper = this.studentWheelchairCheckbox;
+    await wrapper.waitFor({ state: 'visible', timeout: 30_000 });
+    const input = wrapper.locator('input');
+    const inputEl = (await input.count()) ? input.first() : null;
+    const before = inputEl ? await inputEl.isChecked().catch(() => null) : null;
+
+    // Try clicking wrapper/label first (some layouts have label intercepting input clicks).
+    try {
+      await wrapper.click();
+    } catch {
+      // ignore and try other strategies below
+    }
+
+    if (inputEl) {
+      const afterWrapperClick = await inputEl.isChecked().catch(() => null);
+      if (before !== null && afterWrapperClick === before) {
+        const label = wrapper.locator('label').first();
+        if (await label.count()) {
+          try {
+            await label.click();
+          } catch {
+            await label.click({ force: true });
+          }
+        } else {
+          await inputEl.click({ force: true });
+        }
+      }
+    }
+
+    return { toggled: 'WHEELCHAIR' };
+  }
+
+  async clickSave() {
+    // Save control is a material-icon text "save" in the action nav; no stable testid.
+    await this.page.evaluate(() => {
+      const leafs = Array.from(document.querySelectorAll('*'))
+        .filter((el) => el.children.length === 0 && (el.textContent || '').trim() === 'save');
+      const el = leafs[0];
+      if (!el) throw new Error('Save icon not found');
+      const clickable = el.closest('a,button,[role="button"],li,div') || el;
+      clickable.click();
+    });
+  }
+
+  async getLastUpdatedLine() {
+    // Avoid grabbing giant container text; pick the shortest matching line.
+    const line = await this.page.evaluate(() => {
+      const texts = Array.from(document.querySelectorAll('div, span, p'))
+        .map((el) => (el.textContent || '').trim())
+        .filter((t) => t.startsWith('Last updated by') && t.includes('@') && t.length < 350);
+      if (!texts.length) return null;
+      texts.sort((a, b) => a.length - b.length);
+      return texts[0];
+    });
+    return typeof line === 'string' ? line : null;
+  }
+
+  extractUpdatedTimestamp(text) {
+    // Example: "Last updated by johan @ January 24, 2026 11:56 AM ..."
+    const m = text.match(/@\s+([A-Za-z]+\s+\d{1,2},\s+\d{4}\s+\d{1,2}:\d{2}\s+(AM|PM))/);
+    return m ? m[1] : null;
+  }
+
+  async measureSaveTime() {
+    const beforeLine = await this.getLastUpdatedLine();
+    const beforeTs = beforeLine ? this.extractUpdatedTimestamp(beforeLine) : null;
+
+    const start = Date.now();
+    await this.clickSave();
+
+    // Wait until the "Last updated by" timestamp changes.
+    const timeoutAt = Date.now() + 60_000;
+    let afterLine = beforeLine;
+    let afterTs = beforeTs;
+
+    while (Date.now() < timeoutAt) {
+      await this.page.waitForTimeout(250);
+      const currentLine = await this.getLastUpdatedLine();
+      const currentTs = currentLine ? this.extractUpdatedTimestamp(currentLine) : null;
+      if (currentTs && beforeTs && currentTs !== beforeTs) {
+        afterLine = currentLine;
+        afterTs = currentTs;
+        break;
+      }
+      if (currentTs && !beforeTs) {
+        afterLine = currentLine;
+        afterTs = currentTs;
+        break;
+      }
+    }
+
+    const elapsedMs = Date.now() - start;
+
+    return {
+      elapsedMs,
+      lastUpdatedBefore: beforeTs || '(unparsed)',
+      lastUpdatedAfter: afterTs || '(unparsed)',
+      lastUpdatedLineBeforeWasPresent: Boolean(beforeLine),
+      lastUpdatedLineAfterWasPresent: Boolean(afterLine)
+    };
   }
 }

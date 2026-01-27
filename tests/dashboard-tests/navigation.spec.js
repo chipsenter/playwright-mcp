@@ -1,6 +1,6 @@
-import { test, expect } from './fixtures.js';
-import { LoginPage } from '../pages/LoginPage.js';
-import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
+import { test, expect } from '../../utils/fixtures.js';
+import { LoginPage } from '../../pages/LoginPage.js';
+import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe.configure({ mode: 'serial' });
 

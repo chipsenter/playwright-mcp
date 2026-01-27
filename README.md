@@ -63,10 +63,10 @@ npm run test:headed
 npm run test:allure
 
 # Run specific test suite
-npx playwright test tests/student-count.spec.js
-npx playwright test tests/workspace-creation.spec.js
-npx playwright test tests/navigation.spec.js
-npx playwright test tests/student-search.spec.js
+npx playwright test tests/students-tests/student-count.spec.js
+npx playwright test tests/dashboard-tests/workspace-creation.spec.js
+npx playwright test tests/dashboard-tests/navigation.spec.js
+npx playwright test tests/students-tests/student-search.spec.js
 
 # Run tests matching a pattern
 npx playwright test --grep "Student"
@@ -105,21 +105,22 @@ The client parameter is read in this order of precedence:
 2. npm config variable (`npm run test -- --client=clarknv`)
 3. Defaults to `testqa`
 
-**Note:** Some tests require specific clients. For example, `workspace-depot-validation.spec.js` requires the `clarknv` client to access ARVILLE DEPOT data.
+**Note:** Some tests require specific clients. For example, `dashboard-tests/workspace-depot-validation.spec.js` requires the `clarknv` client to access ARVILLE DEPOT data.
 
 ```
 
 **Available test suites:**
-- `login-uat-admin.spec.js` - Admin login and district selection
-- `student-count.spec.js` - Student count validation (410 / 410)
-- `workspace-creation.spec.js` - Workspace creation with unique naming
-- `workspace-depot-validation.spec.js` - Workspace with ARVILLE DEPOT validation (requires clarknv client)
-- `navigation.spec.js` - Navigation through all main tabs (8 tests)
-- `student-search.spec.js` - Student search and filter validation (5 tests)
+- `login-tests/login-uat-admin.spec.js` - Admin login and district selection
+- `students-tests/student-count.spec.js` - Student count validation (410 / 410)
+- `dashboard-tests/workspace-creation.spec.js` - Workspace creation with unique naming
+- `dashboard-tests/workspace-depot-validation.spec.js` - Workspace with ARVILLE DEPOT validation (requires clarknv client)
+- `dashboard-tests/navigation.spec.js` - Navigation through all main tabs (8 tests)
+- `students-tests/student-search.spec.js` - Student search and filter validation (5 tests)
+- `students-tests/student-search.spec.js` - Student search, filter validation, and save performance test (includes save time measurement after toggling SPED/WHEELCHAIR)
 
-### Legacy Smoke Test Script
+### Comprehensive Smoke Test Suite
 
-Standalone smoke test script (runs all scenarios sequentially):
+Playwright test suite that runs all scenarios sequentially:
 
 ```bash
 # Run comprehensive smoke test
@@ -128,8 +129,10 @@ npm run smoke
 # Run with browser visible
 npm run smoke:headed
 
-# Skip specific test sections
-npm run smoke -- --skip-workspace
+# Skip specific test sections (via environment variables)
+SKIP_WORKSPACE=true npm run smoke
+SKIP_STUDENT_COUNT=true npm run smoke
+SKIP_NAVIGATION=true npm run smoke
 ```
 
 ## Allure Reports
@@ -164,20 +167,27 @@ mcp-playwright/
 │   ├── LoginPage.js           # Login page locators and actions
 │   ├── DashboardPage.js       # Dashboard and workspace locators
 │   └── StudentsPage.js        # Students page locators
-├── tests/                     # Playwright test specs (17 tests, JavaScript)
-│   ├── login-uat-admin.spec.js      # Admin login test
-│   ├── student-count.spec.js        # Student count validation
+├── tests/                     # Playwright test specs (17+ tests, JavaScript)
+│   ├── login-tests/                 # Login test suite
+│   │   └── login-uat-admin.spec.js # Admin login test
 │   ├── workspace-creation.spec.js   # Workspace creation
-│   ├── workspace-depot-validation.spec.js  # Workspace with ARVILLE DEPOT (clarknv)
-│   ├── navigation.spec.js           # Navigation tests (8 tests)
-│   └── student-search.spec.js       # Search and filter tests (5 tests)
+│   ├── dashboard-tests/             # Dashboard and navigation tests
+│   │   ├── navigation.spec.js       # Navigation tests (8 tests)
+│   │   ├── workspace-creation.spec.js # Workspace creation
+│   │   └── workspace-depot-validation.spec.js # Workspace with ARVILLE DEPOT (clarknv)
+│   ├── students-tests/               # Student-related tests
+│   │   ├── student-count.spec.js    # Student count validation
+│   │   ├── student-search.spec.js   # Search and filter tests (5 tests)
+│   │   └── show-students-routing-page.spec.js # Show students on routes page
+│   ├── fixtures.js                  # Shared test fixtures (network monitoring)
+│   └── smoke/                       # Comprehensive smoke test suite
+│       └── comprehensive-smoke.spec.js  # Full smoke test (login, count, workspace, nav, search)
 ├── scripts/                   # Utility scripts
-│   ├── smoke-ezrouting.js     # Legacy smoke test script
 │   ├── extract-students-locators.js # Auto-extract page locators
 │   ├── page-inspector.js      # Page element inspector for debugging
 │   ├── notify-test-results.js # Auto-notify Slack with test results
-│   └── loadEnv.js            # Environment loader
 ├── utils/                     # Shared utilities
+│   ├── loadEnv.js            # Environment loader
 │   ├── ezrouting-test-config.js  # Client and environment configuration
 │   ├── slack-notifier.js      # Slack notification sender
 │   └── s3-uploader.js         # S3 uploader for Allure reports
@@ -318,12 +328,12 @@ When adding new tests:
 
 | Test Suite | Tests | Description |
 |------------|-------|-------------|
-| login-uat-admin.spec.js | 1 | Admin login and district selection |
-| student-count.spec.js | 1 | Validates student count displays "410 / 410" |
-| workspace-creation.spec.js | 1 | Creates workspace with unique name |
-| workspace-depot-validation.spec.js | 1 | Creates and activates workspace with ARVILLE DEPOT (clarknv) |
-| navigation.spec.js | 8 | Tests all main navigation tabs |
-| student-search.spec.js | 5 | Search, filter dropdowns, and filter options validation |
+| login-tests/login-uat-admin.spec.js | 1 | Admin login and district selection |
+| students-tests/student-count.spec.js | 1 | Validates student count displays "410 / 410" |
+| dashboard-tests/workspace-creation.spec.js | 1 | Creates workspace with unique name |
+| dashboard-tests/workspace-depot-validation.spec.js | 1 | Creates and activates workspace with ARVILLE DEPOT (clarknv) |
+| dashboard-tests/navigation.spec.js | 8 | Tests all main navigation tabs |
+| students-tests/student-search.spec.js | 5 | Search, filter dropdowns, and filter options validation |
 | **Total** | **17** | Comprehensive UAT validation |
 
 ## Slack Notifications

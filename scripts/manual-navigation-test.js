@@ -19,7 +19,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { loadDotEnv } = require('./loadEnv');
+const { loadDotEnv } = require('../utils/loadEnv');
 
 function parseArgs(argv) {
   const args = {

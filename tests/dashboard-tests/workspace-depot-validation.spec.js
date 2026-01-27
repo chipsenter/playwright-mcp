@@ -1,7 +1,7 @@
-import { test, expect } from './fixtures.js';
-import { LoginPage } from '../pages/LoginPage.js';
-import { DashboardPage } from '../pages/DashboardPage.js';
-import { StudentsPage } from '../pages/StudentsPage.js';
+import { test, expect } from '../../utils/fixtures.js';
+import { LoginPage } from '../../pages/LoginPage.js';
+import { DashboardPage } from '../../pages/DashboardPage.js';
+import { StudentsPage } from '../../pages/StudentsPage.js';
 
 test.describe('Workspace Depot Validation', () => {
   test('should create and activate workspace with ARVILLE DEPOT', async ({ page }) => {

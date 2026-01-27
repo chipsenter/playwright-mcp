@@ -31,7 +31,7 @@ npx playwright test --ui
 npx playwright test --debug
 
 # Run specific test file
-npx playwright test tests/login-uat-admin.spec.ts
+npx playwright test tests/login-tests/login-uat-admin.spec.js
 
 # Run all tests in a folder
 npx playwright test tests/
@@ -109,7 +109,7 @@ npm run allure:serve
 
 ```bash
 # Run single test in debug mode
-npx playwright test tests/login-uat-admin.spec.ts --debug
+npx playwright test tests/login-tests/login-uat-admin.spec.js --debug
 
 # Run with trace viewer
 npx playwright test --trace on

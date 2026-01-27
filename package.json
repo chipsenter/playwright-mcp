@@ -2,8 +2,8 @@
   "name": "mcp-playwright",
   "private": true,
   "scripts": {
-    "smoke": "node scripts/smoke-ezrouting.js",
-    "smoke:headed": "node scripts/smoke-ezrouting.js --headed",
+    "smoke": "playwright test tests/smoke/comprehensive-smoke.spec.js",
+    "smoke:headed": "playwright test tests/smoke/comprehensive-smoke.spec.js --headed",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:notify": "npm run notify:started && playwright test && npm run notify:completed || npm run notify:failed",

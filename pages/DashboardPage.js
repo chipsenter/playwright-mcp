@@ -55,6 +55,14 @@ export class DashboardPage {
     return this.page.getByTestId('workspace-activate-btn');
   }
 
+  get workspaceDeleteButton() {
+    return this.page.getByTestId('workspace-delete-btn');
+  }
+
+  get workspaceUpdateOkButton() {
+    return this.page.getByRole('button', { name: 'Ok' });
+  }
+
   get workspaceEditor() {
     return this.page.getByTestId('workspace-editor');
   }
@@ -90,6 +98,14 @@ export class DashboardPage {
 
   get deactivateButton() {
     return this.page.getByRole('button', { name: 'Deactivate' });
+  }
+
+  get workspaceList() {
+    return this.page.getByTestId('workspace-list');
+  }
+
+  workspaceListItemByName(name) {
+    return this.workspaceList.getByText(name);
   }
 
   async openMenu() {

@@ -15,11 +15,11 @@
   - Defaults: headless, closes automatically unless `--headed`.
   - Screenshots saved to `artifacts/`.
   - Fails if redirected off-host (override with `--allow-redirects`).
-- **Manual/Scenario Test:** `node scripts/student-save-time-testqa.js [options]`
-  - Options: `--headed`, `--toggle=wheelchair|sped`, `--out=<md>`, `--base-url=<url>`
+- **Student Save Time Test:** `npx playwright test tests/students-tests/student-search.spec.js --grep "save time" [--headed]`
+  - Environment variable: `TOGGLE_TYPE=wheelchair|sped` (default: wheelchair)
   - Requires `.env` with `AUTOMATION_SUPER_USER` and `AUTOMATION_SUPER_PASSWORD`.
-  - Generates Markdown report in `manual-test-cases/`.
-- **Playwright Test:** `npx playwright test tests/login-uat-admin.spec.js --headed`
+  - Generates Markdown report in `manual-test-cases/student-save-time.md`.
+- **Playwright Test:** `npx playwright test tests/login-tests/login-uat-admin.spec.js --headed`
 - **Extract Locators:** `node scripts/extract-students-locators.js` - Auto-extract page locators
 - **Slack Notifications:**
   - `npm run notify:started` - Notify test execution started
@@ -56,13 +56,13 @@
   ```bash
   npm run smoke -- --env uat --headed
   ```
-- **Run manual save-time scenario:**
+- **Run student save time test:**
   ```bash
-  node scripts/student-save-time-testqa.js --headed --toggle=sped
+  TOGGLE_TYPE=sped npx playwright test tests/students-tests/student-search.spec.js --grep "save time" --headed
   ```
 - **Run Playwright Test spec:**
   ```bash
-  npx playwright test tests/login-uat-admin.spec.js --headed
+  npx playwright test tests/login-tests/login-uat-admin.spec.js --headed
   ```
 - **Extract page locators:**
   ```bash

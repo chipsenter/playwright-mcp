@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { createNetworkMonitor } from '../utils/network-monitor.js';
+import { createNetworkMonitor } from './network-monitor.js';
 
 function isNetworkPerfEnabled() {
   const raw =
@@ -48,4 +48,3 @@ export const test = base.extend({
 });
 
 export { expect };
-

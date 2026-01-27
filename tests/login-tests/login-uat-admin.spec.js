@@ -1,6 +1,6 @@
-import { test, expect } from './fixtures.js';
-import { LoginPage } from '../pages/LoginPage.js';
-import { DashboardPage } from '../pages/DashboardPage.js';
+import { test, expect } from '../../utils/fixtures.js';
+import { LoginPage } from '../../pages/LoginPage.js';
+import { DashboardPage } from '../../pages/DashboardPage.js';
 
 test('uat admin login (smoke)', async ({ page }) => {
   const email = process.env.AUTOMATION_SUPER_USER;

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect } from '../utils/fixtures.js';
 
 test.describe('TA Report Creation', () => {
   const baseUrl = 'https://transauditor.qa.geodataintelligence.com/pwcsva#/';

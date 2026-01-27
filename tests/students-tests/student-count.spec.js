@@ -1,7 +1,7 @@
-import { test, expect } from './fixtures.js';
-import { LoginPage } from '../pages/LoginPage.js';
-import { StudentsPage } from '../pages/StudentsPage.js';
-import { getEzRoutingBaseUrl } from '../utils/ezrouting-test-config.js';
+import { test, expect } from '../../utils/fixtures.js';
+import { LoginPage } from '../../pages/LoginPage.js';
+import { StudentsPage } from '../../pages/StudentsPage.js';
+import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe('Student Count Validation', () => {
   test('should display correct student count after clearing search', async ({ page }) => {
@@ -30,4 +30,7 @@ test.describe('Student Count Validation', () => {
     const studentCount = await studentsPage.getStudentCount();
     expect(studentCount).toContain('410 / 410');
   });
+
+  
+
 });

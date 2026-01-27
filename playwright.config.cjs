@@ -1,7 +1,7 @@
 const os = require('node:os');
 const path = require('node:path');
 const { defineConfig } = require('@playwright/test');
-const { loadDotEnv } = require('./scripts/loadEnv');
+const { loadDotEnv } = require('./utils/loadEnv');
 
 // Cursor's environment sometimes points Playwright at a temp/sandbox browsers dir.
 // Prefer the normal Playwright cache location when possible.

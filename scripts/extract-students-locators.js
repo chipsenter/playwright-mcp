@@ -9,7 +9,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { loadDotEnv } = require('./loadEnv');
+const { loadDotEnv } = require('../utils/loadEnv');
 
 function ensurePlaywrightBrowsersPath() {
   const current = process.env.PLAYWRIGHT_BROWSERS_PATH || '';
