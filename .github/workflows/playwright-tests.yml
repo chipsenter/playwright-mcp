@@ -1,0 +1,364 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment'
+        required: true
+        default: 'uat'
+        type: choice
+        options:
+          - dev
+          - qa
+          - uat
+          - prod
+
+env:
+  TEST_ENV: ${{ github.event.inputs.environment || 'uat' }}
+  NODE_VERSION: '20'
+
+jobs:
+  sanity:
+    name: Sanity Tests
+    runs-on: ubuntu-latest
+    outputs:
+      sanity_passed: ${{ steps.sanity-results.outputs.passed }}
+      sanity_failed: ${{ steps.sanity-results.outputs.failed }}
+      sanity_total: ${{ steps.sanity-results.outputs.total }}
+      sanity_duration: ${{ steps.sanity-results.outputs.duration }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Send Slack notification - Tests Started
+        env:
+          SLACK_WEBHOOK_DEBUG_URL: ${{ secrets.SLACK_WEBHOOK_DEBUG_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*EZR UI Suite Execution Started*\n• *Stage:* `Sanity Tests`\n• *Env:* `'"$TEST_ENV"'`\n• *Branch:* `'"${{ github.ref_name }}"'`\n• *Triggered By:* `'"${{ github.actor }}"'`\n• *Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>\n\n:hourglass_flowing_sand: *Status:* Running..."
+                  }
+                }
+              ]
+            }' \
+            $SLACK_WEBHOOK_DEBUG_URL
+
+      - name: Run Sanity Tests
+        id: sanity-test
+        continue-on-error: true
+        env:
+          EZR_EMAIL: ${{ secrets.EZR_EMAIL }}
+          EZR_PASSWORD: ${{ secrets.EZR_PASSWORD }}
+          TEST_ENV: ${{ env.TEST_ENV }}
+          TESTRAIL_ENABLED: 'false'
+        run: |
+          START_TIME=$(date +%s)
+          npm run test:sanity -- --reporter=json --reporter=html --reporter=allure-playwright 2>&1 | tee test-output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+          echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $TEST_EXIT_CODE
+
+      - name: Parse test results
+        id: sanity-results
+        if: always()
+        run: |
+          # Parse results from Playwright JSON output or test output
+          if [ -f test-results.json ]; then
+            PASSED=$(jq '.stats.expected // 0' test-results.json 2>/dev/null || echo "0")
+            FAILED=$(jq '.stats.unexpected // 0' test-results.json 2>/dev/null || echo "0")
+            SKIPPED=$(jq '.stats.skipped // 0' test-results.json 2>/dev/null || echo "0")
+          else
+            # Fallback: parse from test output log
+            PASSED=$(grep -oP '\d+(?= passed)' test-output.log 2>/dev/null | tail -1 || echo "0")
+            FAILED=$(grep -oP '\d+(?= failed)' test-output.log 2>/dev/null | tail -1 || echo "0")
+            SKIPPED=$(grep -oP '\d+(?= skipped)' test-output.log 2>/dev/null | tail -1 || echo "0")
+          fi
+
+          PASSED=${PASSED:-0}
+          FAILED=${FAILED:-0}
+          SKIPPED=${SKIPPED:-0}
+          TOTAL=$((PASSED + FAILED + SKIPPED))
+          DURATION="${{ steps.sanity-test.outputs.duration }}"
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "duration=$DURATION" >> $GITHUB_OUTPUT
+
+      - name: Upload Sanity Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanity-allure-results
+          path: allure-results/
+          retention-days: 30
+
+      - name: Upload Sanity test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanity-test-artifacts
+          path: |
+            playwright-report/
+            test-results/
+            artifacts/
+          retention-days: 30
+
+      - name: Check sanity test status
+        if: steps.sanity-test.outputs.exit_code != '0'
+        run: exit 1
+
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: sanity
+    outputs:
+      smoke_passed: ${{ steps.smoke-results.outputs.passed }}
+      smoke_failed: ${{ steps.smoke-results.outputs.failed }}
+      smoke_total: ${{ steps.smoke-results.outputs.total }}
+      smoke_duration: ${{ steps.smoke-results.outputs.duration }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Smoke Tests
+        id: smoke-test
+        continue-on-error: true
+        env:
+          EZR_EMAIL: ${{ secrets.EZR_EMAIL }}
+          EZR_PASSWORD: ${{ secrets.EZR_PASSWORD }}
+          TEST_ENV: ${{ env.TEST_ENV }}
+          TESTRAIL_ENABLED: 'false'
+        run: |
+          START_TIME=$(date +%s)
+          npm run test:smoke -- --reporter=json --reporter=html --reporter=allure-playwright 2>&1 | tee test-output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+          echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $TEST_EXIT_CODE
+
+      - name: Parse test results
+        id: smoke-results
+        if: always()
+        run: |
+          if [ -f test-results.json ]; then
+            PASSED=$(jq '.stats.expected // 0' test-results.json 2>/dev/null || echo "0")
+            FAILED=$(jq '.stats.unexpected // 0' test-results.json 2>/dev/null || echo "0")
+            SKIPPED=$(jq '.stats.skipped // 0' test-results.json 2>/dev/null || echo "0")
+          else
+            PASSED=$(grep -oP '\d+(?= passed)' test-output.log 2>/dev/null | tail -1 || echo "0")
+            FAILED=$(grep -oP '\d+(?= failed)' test-output.log 2>/dev/null | tail -1 || echo "0")
+            SKIPPED=$(grep -oP '\d+(?= skipped)' test-output.log 2>/dev/null | tail -1 || echo "0")
+          fi
+
+          PASSED=${PASSED:-0}
+          FAILED=${FAILED:-0}
+          SKIPPED=${SKIPPED:-0}
+          TOTAL=$((PASSED + FAILED + SKIPPED))
+          DURATION="${{ steps.smoke-test.outputs.duration }}"
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "duration=$DURATION" >> $GITHUB_OUTPUT
+
+      - name: Upload Smoke Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-allure-results
+          path: allure-results/
+          retention-days: 30
+
+      - name: Upload Smoke test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-artifacts
+          path: |
+            playwright-report/
+            test-results/
+            artifacts/
+          retention-days: 30
+
+      - name: Check smoke test status
+        if: steps.smoke-test.outputs.exit_code != '0'
+        run: exit 1
+
+  report-and-notify:
+    name: Generate Report & Notify
+    runs-on: ubuntu-latest
+    needs: [sanity, smoke]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Download Sanity Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: sanity-allure-results
+          path: allure-results-sanity/
+        continue-on-error: true
+
+      - name: Download Smoke Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: smoke-allure-results
+          path: allure-results-smoke/
+        continue-on-error: true
+
+      - name: Merge Allure results
+        run: |
+          mkdir -p allure-results
+          cp -r allure-results-sanity/* allure-results/ 2>/dev/null || true
+          cp -r allure-results-smoke/* allure-results/ 2>/dev/null || true
+          ls -la allure-results/ || echo "No allure results found"
+
+      - name: Install Allure CLI
+        run: |
+          npm install -g allure-commandline
+
+      - name: Generate Allure report
+        run: |
+          allure generate allure-results --clean -o allure-report || echo "Allure report generation failed"
+
+      - name: Upload Allure report to S3
+        id: s3-upload
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: |
+          TIMESTAMP=$(date +%Y-%m-%dT%H-%M-%S)
+          REPORT_PATH="playwright-reports/${{ env.TEST_ENV }}/${TIMESTAMP}"
+
+          # Upload to S3
+          aws s3 sync allure-report/ s3://${AWS_S3_BUCKET}/${REPORT_PATH}/ --acl public-read 2>/dev/null || \
+          aws s3 sync allure-report/ s3://${AWS_S3_BUCKET}/${REPORT_PATH}/
+
+          REPORT_URL="https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${REPORT_PATH}/index.html"
+          echo "report_url=$REPORT_URL" >> $GITHUB_OUTPUT
+          echo "Report URL: $REPORT_URL"
+
+      - name: Calculate totals
+        id: totals
+        run: |
+          SANITY_PASSED=${{ needs.sanity.outputs.sanity_passed || 0 }}
+          SANITY_FAILED=${{ needs.sanity.outputs.sanity_failed || 0 }}
+          SMOKE_PASSED=${{ needs.smoke.outputs.smoke_passed || 0 }}
+          SMOKE_FAILED=${{ needs.smoke.outputs.smoke_failed || 0 }}
+
+          TOTAL_PASSED=$((SANITY_PASSED + SMOKE_PASSED))
+          TOTAL_FAILED=$((SANITY_FAILED + SMOKE_FAILED))
+          TOTAL_TESTS=$((TOTAL_PASSED + TOTAL_FAILED))
+
+          if [ $TOTAL_TESTS -gt 0 ]; then
+            PASS_RATE=$(echo "scale=2; ($TOTAL_PASSED * 100) / $TOTAL_TESTS" | bc)
+          else
+            PASS_RATE="0"
+          fi
+
+          echo "total_passed=$TOTAL_PASSED" >> $GITHUB_OUTPUT
+          echo "total_failed=$TOTAL_FAILED" >> $GITHUB_OUTPUT
+          echo "total_tests=$TOTAL_TESTS" >> $GITHUB_OUTPUT
+          echo "pass_rate=$PASS_RATE" >> $GITHUB_OUTPUT
+
+      - name: Determine overall status
+        id: status
+        run: |
+          SANITY_RESULT="${{ needs.sanity.result }}"
+          SMOKE_RESULT="${{ needs.smoke.result }}"
+
+          if [ "$SANITY_RESULT" == "success" ] && [ "$SMOKE_RESULT" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+            echo "status_text=Completed Successfully" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+            echo "status_text=Failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification - Final Results
+        env:
+          SLACK_WEBHOOK_DEBUG_URL: ${{ secrets.SLACK_WEBHOOK_DEBUG_URL }}
+        run: |
+          REPORT_URL="${{ steps.s3-upload.outputs.report_url }}"
+          REPORT_LINK="<${REPORT_URL}|View Allure Report>"
+
+          if [ -z "$REPORT_URL" ] || [ "$REPORT_URL" == "" ]; then
+            REPORT_LINK="\`Report upload failed\`"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*EZR UI Suite Results '"${{ env.TEST_ENV }}"'*\n\n*Sanity Tests:*\n• Passed: `'"${{ needs.sanity.outputs.sanity_passed || 0 }}"'`\n• Failed: `'"${{ needs.sanity.outputs.sanity_failed || 0 }}"'`\n• Duration: `'"${{ needs.sanity.outputs.sanity_duration || 'N/A' }}"'`\n\n*Smoke Tests:*\n• Passed: `'"${{ needs.smoke.outputs.smoke_passed || 0 }}"'`\n• Failed: `'"${{ needs.smoke.outputs.smoke_failed || 0 }}"'`\n• Duration: `'"${{ needs.smoke.outputs.smoke_duration || 'N/A' }}"'`\n\n*Summary:*\n• *Total Tests:* `'"${{ steps.totals.outputs.total_tests }}"'`\n• *Total Passed:* `'"${{ steps.totals.outputs.total_passed }}"'`\n• *Total Failed:* `'"${{ steps.totals.outputs.total_failed }}"'`\n• *Pass Rate:* `'"${{ steps.totals.outputs.pass_rate }}"'%`\n• *Allure Report:* '"${REPORT_LINK}"'\n• *Workflow:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>\n\n${{ steps.status.outputs.emoji }} *Status:* ${{ steps.status.outputs.status_text }}"
+                  }
+                }
+              ]
+            }' \
+            $SLACK_WEBHOOK_DEBUG_URL
+
+      - name: Upload combined Allure report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-combined
+          path: allure-report/
+          retention-days: 30
