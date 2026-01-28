@@ -1,6 +1,6 @@
 import { test, expect } from '../../utils/fixtures.js';
-import { LoginPage } from '../../pages/LoginPage.js';
-import { DashboardPage } from '../../pages/DashboardPage.js';
+import { LoginPage } from '../../pages/ezr/LoginPage.js';
+import { DashboardPage } from '../../pages/ezr/DashboardPage.js';
 import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe('Workspace Creation', () => {

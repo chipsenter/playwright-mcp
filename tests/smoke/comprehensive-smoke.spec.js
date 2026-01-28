@@ -1,7 +1,7 @@
 import { test, expect } from '../../utils/fixtures.js';
-import { LoginPage } from '../../pages/LoginPage.js';
-import { DashboardPage } from '../../pages/DashboardPage.js';
-import { StudentsPage } from '../../pages/StudentsPage.js';
+import { LoginPage } from '../../pages/ezr/LoginPage.js';
+import { DashboardPage } from '../../pages/ezr/DashboardPage.js';
+import { StudentsPage } from '../../pages/ezr/StudentsPage.js';
 import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 import fs from 'node:fs';
 import path from 'node:path';

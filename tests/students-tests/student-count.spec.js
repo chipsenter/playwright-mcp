@@ -1,6 +1,6 @@
 import { test, expect } from '../../utils/fixtures.js';
-import { LoginPage } from '../../pages/LoginPage.js';
-import { StudentsPage } from '../../pages/StudentsPage.js';
+import { LoginPage } from '../../pages/ezr/LoginPage.js';
+import { StudentsPage } from '../../pages/ezr/StudentsPage.js';
 import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe('Student Count Validation', () => {

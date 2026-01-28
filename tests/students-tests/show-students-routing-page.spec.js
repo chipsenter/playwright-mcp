@@ -1,6 +1,6 @@
 import { test, expect } from '../../utils/fixtures.js';
-import { LoginPage } from '../../pages/LoginPage.js';
-import { RoutesPage } from '../../pages/RoutesPage.js';
+import { LoginPage } from '../../pages/ezr/LoginPage.js';
+import { RoutesPage } from '../../pages/ezr/RoutesPage.js';
 import { getEzRoutingBaseUrl } from '../../utils/ezrouting-test-config.js';
 
 test.describe('Show Students on Routes Page', () => {

@@ -13,7 +13,7 @@
  */
 
 import { chromium } from 'playwright';
-import { LoginPage } from '../pages/LoginPage.js';
+import { LoginPage } from '../pages/ezr/LoginPage.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
