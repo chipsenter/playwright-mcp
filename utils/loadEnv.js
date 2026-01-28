@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 function stripQuotes(value) {
   const v = value.trim();
@@ -9,7 +9,7 @@ function stripQuotes(value) {
   return v;
 }
 
-function loadDotEnv(envPath = path.join(process.cwd(), '.env')) {
+export function loadDotEnv(envPath = path.join(process.cwd(), '.env')) {
   if (!fs.existsSync(envPath)) return;
   const raw = fs.readFileSync(envPath, 'utf8');
 
@@ -29,5 +29,3 @@ function loadDotEnv(envPath = path.join(process.cwd(), '.env')) {
     }
   }
 }
-
-module.exports = { loadDotEnv };

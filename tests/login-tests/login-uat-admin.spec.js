@@ -1,6 +1,6 @@
 import { test, expect } from '../../utils/fixtures.js';
-import { LoginPage } from '../../pages/LoginPage.js';
-import { DashboardPage } from '../../pages/DashboardPage.js';
+import { LoginPage } from '../../pages/ezr/LoginPage.js';
+import { DashboardPage } from '../../pages/ezr/DashboardPage.js';
 
 // TestRail is now automatic! Just include C#### in the test title
 // No need for manual updateTestRailResult() calls
