@@ -1,3 +1,5 @@
+import { expect } from "allure-playwright";
+
 export class DashboardPage {
   constructor(page) {
     this.page = page;
@@ -19,18 +21,33 @@ export class DashboardPage {
 
     // User menu
     this.userMenuButton = page.locator("#user-dropdown");
-    this.userMenuDropdownList = page.locator("#user-menu");
+    this.userDropdownSettingsBtn = page.getByTestId('user-menu-settings-link');
     this.guideMeNavBtn = page.getByText("Guide Me");
-    this.userMenuSettingsLink = page.locator("[data-testid='user-menu-settings-link']");
-    this.userMenuUsersLink = page.locator("[data-testid='user-menu-users-link']");
-    this.userMenuRolesLink = page.locator("[data-testid='user-menu-roles-link']");
-    this.userMenuParentsLink = page.locator("[data-testid='user-menu-parents-link']");
-    this.userMenuChangeRequests = page.locator("[data-testid='user-menu-change-requests']");
-    this.logoutButton = page.locator("[data-testid='user-menu-logout-link']");
+    this.userMenuUsersLink = page.getByTestId('user-menu-users-link');
+    this.userMenuRolesLink = page.getByTestId('user-menu-roles-link');
+    this.userMenuParentsLink = page.getByTestId('user-menu-parents-link');
+    this.userMenuChangeRequests = page.getByTestId('user-menu-change-requests');
+    this.userMenuRoutesLink = page.getByTestId('user-menu-route-requests-link');
+    this.userMenuSecurityLink = page.getByTestId('user-menu-security-link');
+    this.userMenuBackupsLink = page.getByTestId('user-menu-backups-link');
+    this.userMenuImportsLink = page.getByTestId('user-menu-import-link');
+    this.userMenuAuditingLink = page.getByTestId('user-menu-auditing-link');
+    this.logoutButton = page.getByTestId('user-menu-logout-link');
 
     // Workspace buttons
     this.workspaceUpdateBtn = page.locator("[data-testid='workspace-save-btn']");
     this.workspaceDeleteBtn = page.locator("[data-testid='workspace-delete-btn']");
+  }
+
+  async logout() {
+    await this.userMenuButton.click();
+    await this.logoutButton.click();
+  }
+
+  async validateNewLogo() {
+    await this.logo.waitFor({ state: 'visible' });
+    await expect(this.logo).toBeVisible();
+    await expect(this.newLogo).toBeVisible();
   }
 
   // Locators (based on codegen recording)
@@ -195,4 +212,22 @@ export class DashboardPage {
     await this.deactivateButton.click();
     await this.yesButton.click();
   }
+
+  async validateUserSettingsDropdownElements() {
+    
+    await this.userMenuButton.click();
+    await this.page.waitForLoadState('networkidle');
+    await expect(this.userDropdownSettingsBtn).toBeVisible();
+    await expect(this.userMenuUsersLink).toBeVisible();
+    await expect(this.userMenuRolesLink).toBeVisible();
+    await expect(this.userMenuParentsLink).toBeVisible();
+    await expect(this.userMenuChangeRequests).toBeVisible();
+    await expect(this.userMenuRoutesLink).toBeVisible();
+    await expect(this.userMenuSecurityLink).toBeVisible();
+    await expect(this.userMenuBackupsLink).toBeVisible();
+    await expect(this.userMenuImportsLink).toBeVisible();
+    await expect(this.userMenuAuditingLink).toBeVisible();
+
+  }
+
 }

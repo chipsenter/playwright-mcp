@@ -124,4 +124,11 @@ test.describe('Navigation Validation', () => {
     await expect(dashboardPage.newLogo).toBeVisible();
   });
 
+  test('C-IN-DEV should validate ezr dashboard elements', async ({ page }) => {
+    const dashboardPage = new DashboardPage(page);
+    await dashboardPage.validateUserSettingsDropdownElements();
+  });
+
+
+
   });

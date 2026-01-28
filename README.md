@@ -5,13 +5,14 @@ Comprehensive Playwright test automation suite for EZRouting UAT testing with Pa
 ## Features
 
 - **Pure JavaScript** - All tests and page objects written in modern JavaScript (no TypeScript)
+- **Test Tagging System** - Filter tests by @smoke and @sanity tags for targeted test execution
 - **Comprehensive Smoke Test Suite** - Combined test scenarios for login, student count, workspace creation, navigation, and search
-- **Page Object Model** - Reusable page objects for maintainable test code
+- **Page Object Model** - Reusable page objects organized by application (EZRouting, TransAuditor)
 - **Allure Reporting** - Rich test reports with screenshots and traces
 - **Environment-based Configuration** - Secure credential management via .env
 - **Multiple Test Scenarios** - Individual test scripts and combined smoke tests
 - **Automatic Browser Management** - Handles browser installation and cleanup
-- **Auto-generated Locators** - Extract page locators automatically with `extract-students-locators.js`
+- **Selenide-Style Locators** - Direct locator assignment in constructors for clean, maintainable code
 
 ## Prerequisites
 
@@ -40,9 +41,19 @@ Create a `.env` file in the project root (use `.env.example` as a template):
 AUTOMATION_SUPER_USER=your-email@example.com
 AUTOMATION_SUPER_PASSWORD=your-password
 
+# Optional: Set test environment (defaults to UAT if not specified)
+# Options: DEV, UAT, QA, PROD
+ENV=UAT
+
 # Optional: Set default client (defaults to testqa if not specified)
 CLIENT=testqa
 ```
+
+**Environment URLs:**
+- `ENV=DEV` → `https://routing-dev.transact.com`
+- `ENV=UAT` → `https://routing-uat.transact.com` (default)
+- `ENV=QA` → `https://routing-qa.transact.com`
+- `ENV=PROD` → `https://www.ezrouting.com`
 
 **Important:** Never commit the `.env` file to version control. It's already in `.gitignore`.
 
@@ -58,6 +69,12 @@ npm test
 
 # Run tests with browser visible
 npm run test:headed
+
+# Run tagged tests (smoke/sanity)
+npm run test:smoke          # Run @smoke tests
+npm run test:smoke:headed   # Run @smoke tests with browser visible
+npm run test:sanity         # Run @sanity tests
+npm run test:sanity:headed  # Run @sanity tests with browser visible
 
 # Run tests and view Allure report
 npm run test:allure
@@ -77,6 +94,79 @@ npx playwright test --debug
 # Run in UI mode (interactive)
 npx playwright test --ui
 ```
+
+### Test Tags (@smoke / @sanity)
+
+Tests can be tagged with `@smoke` and `@sanity` in their test titles to enable filtered test execution. This allows you to run specific test categories quickly without running the entire suite.
+
+**Running tagged tests:**
+
+```bash
+# Run all tests tagged with @smoke
+npm run test:smoke
+
+# Run all tests tagged with @sanity
+npm run test:sanity
+
+# Run with browser visible
+npm run test:smoke:headed
+npm run test:sanity:headed
+
+# Combine with other Playwright options
+npm run test:smoke -- --workers=1
+npm run test:sanity -- --reporter=list
+```
+
+**Adding tags to tests:**
+
+Tags are added directly to test titles:
+
+```javascript
+test('C7204 uat admin login (smoke) @smoke @sanity', async ({ page }) => {
+  // Test implementation
+});
+
+test('C7211 login page element validation @smoke @sanity', async ({ page }) => {
+  // Test implementation
+});
+```
+
+**Current tagged tests:**
+- All tests in `login-tests/login-uat-admin.spec.js` include both `@smoke` and `@sanity` tags
+- Tests with both tags will run when filtering by either `@smoke` or `@sanity`
+
+**Tag naming convention:**
+- Use `@smoke` for critical path tests that must pass for basic functionality
+- Use `@sanity` for quick validation tests checking core features
+- Tests can have multiple tags to be included in different test runs
+
+### Environment-Specific Testing
+
+Run tests against different environments (DEV, UAT, QA, PROD) using the `ENV` environment variable:
+
+```bash
+# Run tests in DEV environment
+ENV=DEV npm run test:smoke
+
+# Run tests in PROD environment
+ENV=PROD npm run test:smoke:headed
+
+# Run specific test in QA environment
+ENV=QA npx playwright test tests/login-tests/login-uat-admin.spec.js
+
+# Set default environment in .env file
+echo "ENV=DEV" >> .env
+```
+
+**Available environments:**
+- `DEV` - Development environment (`https://routing-dev.transact.com`)
+- `UAT` - UAT environment (`https://routing-uat.transact.com`) - default
+- `QA` - QA environment (`https://routing-qa.transact.com`)
+- `PROD` - Production environment (`https://www.ezrouting.com`)
+
+The environment parameter is read in this order of precedence:
+1. `ENV` or `TEST_ENV` environment variable
+2. Defaults to `UAT`
 
 ### Client-Specific Testing
 
@@ -108,6 +198,24 @@ The client parameter is read in this order of precedence:
 **Note:** Some tests require specific clients. For example, `dashboard-tests/workspace-depot-validation.spec.js` requires the `clarknv` client to access ARVILLE DEPOT data.
 
 ```
+
+**Available npm scripts:**
+- `npm test` - Run all tests headless
+- `npm run test:headed` - Run all tests with visible browser
+- `npm run test:smoke` - Run all tests tagged with @smoke
+- `npm run test:smoke:headed` - Run @smoke tests with visible browser
+- `npm run test:sanity` - Run all tests tagged with @sanity
+- `npm run test:sanity:headed` - Run @sanity tests with visible browser
+- `npm run smoke` - Run comprehensive smoke test suite
+- `npm run smoke:headed` - Run comprehensive smoke test with visible browser
+- `npm run test:allure` - Run tests and serve Allure report
+- `npm run allure:generate` - Generate Allure report
+- `npm run allure:serve` - Serve Allure report
+- `npm run allure:open` - Open existing Allure report
+- `npm run notify:started` - Send Slack notification (test started)
+- `npm run notify:completed` - Send Slack notification (test completed)
+- `npm run notify:failed` - Send Slack notification (test failed)
+- `npm run test:notify` - Run tests with automatic Slack notifications
 
 **Available test suites:**
 - `login-tests/login-uat-admin.spec.js` - Admin login and district selection
@@ -161,12 +269,13 @@ Allure reports include:
 ```
 mcp-playwright/
 ├── pages/                      # Page Object Model (JavaScript)
-│   ├── locators/              # Auto-generated locators
-│   │   ├── students-locators.js   # Students page locators (2328 locators)
-│   │   └── students-locators.json # Students locators metadata
-│   ├── LoginPage.js           # Login page locators and actions
-│   ├── DashboardPage.js       # Dashboard and workspace locators
-│   └── StudentsPage.js        # Students page locators
+│   ├── ezr/                   # EZRouting page objects
+│   │   ├── LoginPage.js       # Login page locators and actions
+│   │   ├── DashboardPage.js   # Dashboard and workspace locators
+│   │   ├── StudentsPage.js    # Students page locators
+│   │   └── RoutesPage.js      # Routes page locators
+│   └── trans-auditor-pages/   # TransAuditor page objects
+│       └── TaDashboardPage.js # TransAuditor dashboard page
 ├── tests/                     # Playwright test specs (17+ tests, JavaScript)
 │   ├── login-tests/                 # Login test suite
 │   │   └── login-uat-admin.spec.js # Admin login test
@@ -201,7 +310,7 @@ mcp-playwright/
 │   └── environments.json     # Environment URLs
 ├── .env                      # Environment variables (not in git)
 ├── .env.example             # Example environment file
-├── playwright.config.cjs     # Playwright configuration
+├── playwright.config.js     # Playwright configuration (ES module)
 └── package.json             # Dependencies and scripts
 ```
 

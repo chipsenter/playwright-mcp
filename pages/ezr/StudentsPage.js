@@ -1,8 +1,6 @@
-import { StudentsLocators } from './locators/students-locators.js';
-
 /**
  * Page Object Model for the Students page
- * Uses a mix of generated locators and hard-coded values where elements are dynamically loaded
+ * All locators use direct data-testid values
  */
 export class StudentsPage {
   constructor(page) {
@@ -11,7 +9,7 @@ export class StudentsPage {
 
   // Navigation
   get navStudentsLink() {
-    return this.page.getByTestId(StudentsLocators.navStudentsLink);
+    return this.page.getByTestId('nav-students-link');
   }
 
   // Search
@@ -30,113 +28,113 @@ export class StudentsPage {
 
   // Student filters dropdown (from extracted locators)
   get studentFiltersDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentFiltersDropdown);
+    return this.page.getByTestId('student-filters-dropdown');
   }
 
   get studentGradesDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentGradesDropdown);
+    return this.page.getByTestId('student-grades-dropdown');
   }
 
   get studentSchoolsDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentSchoolsDropdown);
+    return this.page.getByTestId('student-schools-dropdown');
   }
 
   get studentVehiclesDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentVehiclesDropdown);
+    return this.page.getByTestId('student-vehicles-dropdown');
   }
 
   get studentOperationsDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentOperationsDropdown);
+    return this.page.getByTestId('student-operations-dropdown');
   }
 
   get studentReportsDropdown() {
-    return this.page.getByTestId(StudentsLocators.studentReportsDropdown);
+    return this.page.getByTestId('student-reports-dropdown');
   }
 
   // Filter options
   get filterAny() {
-    return this.page.getByTestId(StudentsLocators.filterAny);
+    return this.page.getByTestId('filter-any');
   }
 
   get filterCustomFilters() {
-    return this.page.getByTestId(StudentsLocators.filterCustomFilters);
+    return this.page.getByTestId('filter-custom-filters');
   }
 
   get filterGeneral() {
-    return this.page.getByTestId(StudentsLocators.filterGeneral);
+    return this.page.getByTestId('filter-general');
   }
 
   get filterRiders() {
-    return this.page.getByTestId(StudentsLocators.filterRiders);
+    return this.page.getByTestId('filter-riders');
   }
 
   get filterTransportPrograms() {
-    return this.page.getByTestId(StudentsLocators.filterTransportPrograms);
+    return this.page.getByTestId('filter-transport-programs');
   }
 
   get filterTransportPlans() {
-    return this.page.getByTestId(StudentsLocators.filterTransportPlans);
+    return this.page.getByTestId('filter-transport-plans');
   }
 
   get filterBusSchedules() {
-    return this.page.getByTestId(StudentsLocators.filterBusSchedules);
+    return this.page.getByTestId('filter-bus-schedules');
   }
 
   get filterRidership() {
-    return this.page.getByTestId(StudentsLocators.filterRidership);
+    return this.page.getByTestId('filter-ridership');
   }
 
   get filterFamilyId() {
-    return this.page.getByTestId(StudentsLocators.filterFamilyId);
+    return this.page.getByTestId('filter-family-id');
   }
 
   get filterContacts() {
-    return this.page.getByTestId(StudentsLocators.filterContacts);
+    return this.page.getByTestId('filter-contacts');
   }
 
   get filterParents() {
-    return this.page.getByTestId(StudentsLocators.filterParents);
+    return this.page.getByTestId('filter-parents');
   }
 
   get filterLocation() {
-    return this.page.getByTestId(StudentsLocators.filterLocation);
+    return this.page.getByTestId('filter-location');
   }
 
   get filterBusRegions() {
-    return this.page.getByTestId(StudentsLocators.filterBusRegions);
+    return this.page.getByTestId('filter-bus-regions');
   }
 
   get filterCustomRegions() {
-    return this.page.getByTestId(StudentsLocators.filterCustomRegions);
+    return this.page.getByTestId('filter-custom-regions');
   }
 
   get filterStudentInfo() {
-    return this.page.getByTestId(StudentsLocators.filterStudentInfo);
+    return this.page.getByTestId('filter-student-info');
   }
 
   get filterEthnicities() {
-    return this.page.getByTestId(StudentsLocators.filterEthnicities);
+    return this.page.getByTestId('filter-ethnicities');
   }
 
   get filterTransportCodes() {
-    return this.page.getByTestId(StudentsLocators.filterTransportCodes);
+    return this.page.getByTestId('filter-transport-codes');
   }
 
   get filterAdvancedSearch() {
-    return this.page.getByTestId(StudentsLocators.filterAdvancedSearch);
+    return this.page.getByTestId('filter-advanced-search');
   }
 
   get filterRidersOnly() {
-    return this.page.getByTestId(StudentsLocators.filterRidersOnly);
+    return this.page.getByTestId('filter-riders-only');
   }
 
   // User menu locators
   get userMenuTriggerLink() {
-    return this.page.getByTestId(StudentsLocators.userMenuTriggerLink);
+    return this.page.getByTestId('user-menu-trigger-link');
   }
 
   get userMenuLogoutLink() {
-    return this.page.getByTestId(StudentsLocators.userMenuLogoutLink);
+    return this.page.getByTestId('user-menu-logout-link');
   }
 
   // Router view locator (for validation)
@@ -175,11 +173,11 @@ export class StudentsPage {
 
   // Student batch edit panel (from extracted locators)
   get studentBatchEditPanel() {
-    return this.page.getByTestId(StudentsLocators.studentBatchEditPanel);
+    return this.page.getByTestId('student-batch-edit-panel');
   }
 
   get studentBatchEditSelectedCount() {
-    return this.page.getByTestId(StudentsLocators.studentBatchEditSelectedCount);
+    return this.page.getByTestId('student-batch-edit-selected-count');
   }
 
   // Student rows - Dynamic locators
